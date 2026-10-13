@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Quest Mãos · 6DoF</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="css/app.css"></head><body><canvas id="hand2d"></canvas>
+<div id="hud"></div><div id="toast"></div>
+<div class="ov" id="wel"><div class="card"><h2>🥽 Quest 3 · Hand Tracking 6DoF</h2>
+<p>Este app usa <b>somente suas mãos</b> (webcam + MediaPipe). Sem mouse e sem teclado.</p>
+<p><b>Mão direita</b> (a que aparece à direita na tela): mova o indicador/polegar para apontar; <b>pinça</b> = clicar, segurar = arrastar janela, teclas e canto ◢.<br>
+<b>Mão esquerda</b>: <b>pinça</b> e mover = andar (desligado com o teclado na mesa). No celular o giroscópio gira a vista. <b>Teclado:</b> bata com os dedos nas teclas.<br>
+Use as duas mãos à frente da câmera, com boa luz.</p>
+<button class="go" id="enter">Ativar câmera e entrar</button><p id="err" style="font-size:13px;color:#fa8"></p><button class="go" id="xrvr" style="display:none">🥽 Entrar em VR (WebXR 6DoF)</button> <button class="go" id="xrar" style="display:none">📷 Entrar em AR (passthrough)</button>
+<button class="go" id="nocam" style="background:#444">Entrar sem câmera (giroscópio · olhar 1 s = clicar)</button></div></div>
+
+<script src="lib/three.min.js"></script>
+<script src="js/00-mediapipe.js"></script>
+<script src="js/00b-ponte-nativa.js"></script>
+<script src="js/01-cena.js"></script>
+<script src="js/02-janelas.js"></script>
+<script src="js/03-navegador.js"></script>
+<script src="js/04-teclado.js"></script>
+<script src="js/05-dock-hardware.js"></script>
+<script src="js/06-maos.js"></script>
+<script src="js/07-loop.js"></script>
+<script src="js/08-xr.js"></script>
+<script src="js/09-teclado-mesa.js"></script>
+<script src="js/10-loja.js"></script>
+</body></html>

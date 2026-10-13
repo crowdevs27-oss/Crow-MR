@@ -1,0 +1,41 @@
+Quest Mãos · 6DoF (só hand tracking) — pronto para virar APK
+
+TESTE NO PC: nesta pasta, python -m http.server 8000 e abra http://localhost:8000.
+
+APK (WebView/Capacitor):
+1) Sirva os arquivos por https, nunca por file://: WebViewAssetLoader (https://appassets.androidplatform.net/assets/...), Capacitor (https://localhost) ou equivalente.
+   Motivos: o MediaPipe usa import() de módulo + wasm, e getUserMedia exige contexto seguro.
+2) AndroidManifest.xml: <uses-permission android:name="android.permission.CAMERA"/> e <uses-feature android:name="android.hardware.camera" android:required="false"/>, <uses-permission android:name="android.permission.INTERNET"/> (o Leitor do navegador usa internet).
+3) WebChromeClient.onPermissionRequest: conceder PermissionRequest.RESOURCE_VIDEO_CAPTURE (e pedir a permissão CAMERA em tempo de execução). Sem isso a câmera/hand tracking não liga.
+4) WebSettings: setJavaScriptEnabled(true), setMediaPlaybackRequiresUserGesture(false). Tela cheia e paisagem recomendadas.
+5) Giroscópio (DeviceOrientation) funciona no WebView sem permissão extra.
+6) Se o seu app expõe window.NativeApp, js/00b-ponte-nativa.js manda os links externos ({t:"abrir",url}) para o Android.
+Tamanho: lib/ tem ~27 MB (modelo 7,8 MB + wasm). Se quiser reduzir, remova vision_wasm_nosimd_internal.* (aparelhos antigos sem SIMD deixam de funcionar).
+
+Mão direita: pinça = clicar/arrastar. Mão esquerda: punho = olhar; pinça + mover = andar.
+Pastas: css/app.css · js/00..07 · lib/three.min.js · lib/hand_landmarker.task · lib/mediapipe/{vision_bundle.js,wasm/}
+
+WEBXR (6DoF real): precisa de https (ou localhost) e de um navegador com WebXR, como o Meta Quest Browser (VR/AR) ou Chrome/Edge com headset. Aparecem na tela inicial os botões "Entrar em VR" e "Entrar em AR" quando o aparelho suporta.
+Dentro do VR: a cabeça é a pose do headset (andar de verdade). Mão direita: raio do ombro pela pinça (pinça = clicar). Mão esquerda: pinça e mover = andar. Controles: gatilho = clicar, analógico esquerdo = andar.
+O WebView padrão do Android NÃO tem WebXR: no APK ele só vale se o WebView do seu app suportar (ex.: Quest/Wolvic). Em VM também não há WebXR.
+Se travar na tela inicial: use "Entrar sem câmera". Em VM, ative a webcam em Dispositivos > Webcams do VirtualBox.
+
+HANDTRACKER "QUEST STYLE" (MediaPipe Hands + camera_utils, modelComplexity 0, confiança 0.7, contorno branco/azul):
+É o tracker principal. Online ele carrega da CDN jsDelivr. Para funcionar OFFLINE no APK, baixe os arquivos do pacote npm @mediapipe/hands (hands.js, hands_solution_packed_assets.data, hands_solution_simd_wasm_bin.wasm/.js, hands.binarypb, hand_landmark_*.tflite) e @mediapipe/camera_utils (camera_utils.js) para lib/hands/ — ele usa essa pasta automaticamente. Sem isso (e sem internet) cai no modelo local de lib/mediapipe.
+
+TECLADO NA MESA (sem teclado flutuante): ao tocar num campo de texto ou no botão Teclado, o app pede para olhar uma mesa e posicionar as mãos como num teclado. A IA (ObjectDetector, classe "dining table") acha a mesa; no WebXR usa os planos "table" do Quest. Mãos paradas ~1,2 s = o teclado nasce na mesa e fica fixo no mundo. Digitar: pinça (raio) ou, no WebXR, tocar a ponta do dedo na mesa.
+6DoF: as janelas ficam presas ao mundo (pivô = onde foram abertas). Andar não as leva junto; arraste-as pelo raio para reposicionar.
+
+LOJA DE APPS (dock > 🛒): categorias Produtividade / Jogos / Ferramentas / Instalados. Nada vem instalado: "Baixar" busca o HTML na CDN (https://files.catbox.moe/3jfn2i.html) e guarda no aparelho (IndexedDB); depois funciona offline, exceto o que o próprio app carrega da internet (o MyIDE usa Monaco/fontes de CDN).
+MyIDE (Crow Bevs) abre numa janela presa ao mundo; toque = pinça, rolar = pinça e arrastar, digitar = teclado na mesa. Apps HTML só no modo 2D (DOM não aparece dentro do headset).
+Para adicionar apps: edite o array CAT em js/10-loja.js (id, nome, dev, cat, desc, icone, url, w, h).
+DESEMPENHO: resolução adaptativa (0,5x a 1,25x), contorno da mão em meia resolução, texturas sem mipmaps, mãos 3D só no WebXR.
+
+TECLADO: maior (78 cm) e digita como teclado normal: bata com a ponta de cada dedo na tecla (câmera 2D: flexão rápida do dedo; WebXR: tocar a mesa). Pinça não aperta teclas.
+JANELAS: barra de título com ⠿ (arrastar), – (minimizar; vira botão no dock) e ✕ (fechar). Apps redimensionam o iframe ao tamanho real na tela (nitidez).
+MÃOS: esqueleto (21 juntas) desenhado por cima de tudo, inclusive dos apps; no WebXR o esqueleto fantasma também ignora oclusão.
+
+NAVEGADOR (inspirado no do Quest): abas em pílula (✕ fecha a aba, + nova), minimizar e fechar redondos, ← → ⟳ 🏠, busca arredondada, ▲▼ rolar, ⌨ teclado, ↗ abrir fora. Nova guia = Populares / Entretenimento / Seus apps (edite SIT e ENT em js/03-navegador.js). Sites abrem em modo leitor; os blocos de Entretenimento abrem fora do app (↗).
+
+v-ícones/CSS: ícones agora são vetoriais (sem depender de emoji/fonte). O navegador abre sites com CSS/imagens (HTML por proxy num iframe isolado, sandbox; botão Aa = modo leitor). Sites com muito JavaScript/login podem não funcionar por esse método.
+TECLADO: cada dedo mira a tecla sob a ponta e "bate" (flexão/descida rápida); teclas destacadas mostram onde cada dedo está. A rotação da tela com punho da mão esquerda foi removida; andar com a esquerda fica desligado enquanto há teclado.

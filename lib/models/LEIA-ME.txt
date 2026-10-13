@@ -1,0 +1,3 @@
+Coloque aqui efficientdet_lite0.tflite (MediaPipe ObjectDetector, EfficientDet-Lite0 float16) para o teclado achar a mesa OFFLINE:
+https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite
+Sem o arquivo, o app tenta baixar desse endereço (precisa de internet); sem os dois, o teclado usa só a altura das mãos.
